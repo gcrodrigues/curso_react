@@ -1,13 +1,43 @@
 import React, { Component } from "react";
+import FormValidator from "./FormValidator";
+import PopUp from "./PopUp";
 
 export default class Formulario extends Component {
   constructor(props) {
     super(props);
 
+    this.validador = new FormValidator([
+      {
+        campo: "nome",
+        metodo: "isEmpty",
+        validoQuando: false,
+        mensagem: "Digite um nome válido.",
+      },
+      {
+        campo: "livro",
+        metodo: "isEmpty",
+        validoQuando: false,
+        mensagem: "Digite um livro válido.",
+      },
+      {
+        campo: "preco",
+        args: [
+          {
+            min: 0,
+            max: 9999,
+          },
+        ],
+        metodo: "isInt",
+        validoQuando: true,
+        mensagem: "Digite um valor numérico.",
+      },
+    ]);
+
     this.stateInicial = {
       nome: "",
       livro: "",
       preco: "",
+      validacao: this.validador.valido(),
     };
 
     this.state = this.stateInicial;
@@ -21,8 +51,21 @@ export default class Formulario extends Component {
   };
 
   submitFormulario = () => {
-    this.props.escutadorDeSubmit(this.state);
-    this.setState(this.stateInicial);
+    const validacao = this.validador.valida(this.state);
+
+    if (validacao.isValid) {
+      this.props.escutadorDeSubmit(this.state);
+      this.setState(this.stateInicial);
+    } else {
+      const { nome, livro, preco } = validacao;
+      const campos = [nome, livro, preco];
+
+      const camposInvalidos = campos.filter((elem) => elem.isInvalid);
+
+      camposInvalidos.forEach((campo) => {
+        PopUp.exibeMensagem("error", campo.message);
+      });
+    }
   };
 
   render() {
@@ -31,9 +74,10 @@ export default class Formulario extends Component {
     return (
       <form>
         <div className="row">
-
           <div className="input-field col s4">
-            <label className="input-field active" htmlFor="nome">Nome</label>
+            <label className="input-field active" htmlFor="nome">
+              Nome
+            </label>
             <input
               className="validate"
               id="nome"
@@ -43,9 +87,11 @@ export default class Formulario extends Component {
               onChange={this.escutadorDeInput}
             />
           </div>
-          
+
           <div className="input-field col s4">
-            <label className="input-field active" htmlFor="livro">Livro</label>
+            <label className="input-field active" htmlFor="livro">
+              Livro
+            </label>
             <input
               className="validate"
               id="livro"
@@ -55,9 +101,11 @@ export default class Formulario extends Component {
               onChange={this.escutadorDeInput}
             />
           </div>
-          
+
           <div className="input-field col s4">
-            <label className="input-field active" htmlFor="preco">Preço</label>
+            <label className="input-field active" htmlFor="preco">
+              Preço
+            </label>
             <input
               className="validate"
               id="preco"
@@ -67,9 +115,14 @@ export default class Formulario extends Component {
               onChange={this.escutadorDeInput}
             />
           </div>
-
         </div>
-        <button className="waves-effect waves-light indigo lighten-2 btn" onClick={this.submitFormulario} type="button">Salvar</button>
+        <button
+          className="waves-effect waves-light indigo lighten-2 btn"
+          onClick={this.submitFormulario}
+          type="button"
+        >
+          Salvar
+        </button>
       </form>
     );
   }
