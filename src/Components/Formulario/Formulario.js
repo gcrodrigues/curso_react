@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import FormValidator from "./FormValidator";
-import PopUp from "./PopUp";
+import FormValidator from "../../Utils/FormValidator";
+import PopUp from "../../Utils/PopUp";
 
 export default class Formulario extends Component {
   constructor(props) {

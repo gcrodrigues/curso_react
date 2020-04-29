@@ -1,17 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import Sobre from './Sobre';
-import Autores from './Autores';
-import Livros from './Livros';
-import NotFound from './NotFound';
+import Home from './Pages/Home/Home';
+import Sobre from './Pages/Sobre/Sobre';
+import Autores from './Pages/Autores/Autores';
+import Livros from './Pages/Livros/Livros';
+import NotFound from './Pages/NotFound/NotFound';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
 ReactDOM.render(
     <BrowserRouter>
       <Switch>
-        <Route exact={true} path='/' component={App}/>
+        <Route exact={true} path='/' component={Home}/>
         <Route path='/autores' component={Autores}/>
         <Route path='/livros' component={Livros}/>
         <Route path='/sobre' component={Sobre}/>

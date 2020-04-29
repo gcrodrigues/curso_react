@@ -1,10 +1,10 @@
 import React from "react";
 
 const DataTabela = (props) => {
-  const linhas = props.dados.map((item, index) => (
-    <tr key={index}>
+  const linhas = props.dados.map((item) => (
+    <tr key={item.id}>
       {props.colunas.map((coluna) => (
-        <td key={index}>{item[coluna]}</td>
+        <td key={`${item.id}${item[coluna]}`}>{item[coluna]}</td>
       ))}
     </tr>
   ));
