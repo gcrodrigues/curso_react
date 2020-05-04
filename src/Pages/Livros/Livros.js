@@ -1,16 +1,20 @@
 import React, { Component } from "react";
 
 import Header from "../../Components/Header/Header";
-import DataTabela from "../../Components/DataTabela/DataTabela";
-import ApiService from '../../Utils/ApiService';
-import PopUp from '../../Utils/PopUp';
+import Tabela from "../../Components/Tabela/Tabela";
+import ApiService from '../../Services/ApiService';
+import Toast from  '../../Components/Toast/Toast';
 
-export default class NotFound extends Component {
+export default class Livros extends Component {
   constructor(props) {
     super(props);
     this.state = {
       livros: [],
-      titulo: "Livros",
+      mensagem: {
+        open: false,
+        tipo: '',
+        text: ''
+      }
     };
   }
 
@@ -22,19 +26,44 @@ export default class NotFound extends Component {
           this.setState({ livros: [...this.state.livros, ...res.data] })
         }
       })
-      .catch(err => PopUp.exibeMensagem("error", "Erro na comunicação com a API ao listar livros"))
+      .catch(err => 
+        this.setState({
+          mensagem: {
+            open: true, 
+            tipo: 'warning', 
+            text:"Erro na comunicação com a API ao listar livros"
+          }
+        })
+      )
   }
 
   render() {
+    const campos = [{
+      titulo: 'Livros',
+      dado: 'livro'
+    }];
+
+    const { open, tipo, text } = this.state.mensagem;
     return (
       <>
+        <Toast
+          severity={tipo}
+          open={open}
+          handleClose={() => {
+            this.setState({
+              mensagem: { open: false },
+            });
+          }}
+        >
+          {text}
+        </Toast>
+
         <Header />
         <div className="container mb-10">
           <h1>Livros</h1>
-          <DataTabela
+          <Tabela
             dados={this.state.livros}
-            titulo={this.state.titulo}
-            colunas={["livro"]}
+            campos={campos}
           />
         </div>
       </>

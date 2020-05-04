@@ -19,7 +19,7 @@ export default class FormValidator {
       if (metodoValor(campoValor, ...args) !== regra.validoQuando) {
         validacao[regra.campo] = {
           isInvalid: true,
-          message: regra.mensagem,
+          mensagem: regra.mensagem,
         };
         return (validacao.isValid = false);
       }

@@ -1,12 +1,11 @@
 import React, { Component, Fragment } from "react";
-import "materialize-css/dist/css/materialize.min.css";
 import "./Home.css";
-import ApiService from '../../Utils/ApiService';
+import ApiService from '../../Services/ApiService';
 
 import Header from "../../Components/Header/Header";
 import Tabela from "../../Components/Tabela/Tabela";
 import Form from "../../Components/Formulario/Formulario";
-import PopUp from "../../Utils/PopUp";
+import Toast from '../../Components/Toast/Toast'
 
 export default class Home extends Component {
   constructor(props){
@@ -14,6 +13,11 @@ export default class Home extends Component {
     
     this.state = {
       autores: [],
+      mensagem: {
+        open: false, 
+        tipo: '',
+        text: ''
+      }
     };
   }
 
@@ -28,23 +32,57 @@ export default class Home extends Component {
     ApiService.RemoveAutor(id)
       .then(res => {
         if(res.message === 'deleted'){
-          PopUp.exibeMensagem("success", " Autor removido com sucesso");
-          this.setState({autores: [...autoresAtualizados]})
+          
+          this.setState({
+            autores: [...autoresAtualizados],
+            mensagem: {
+              open: true, 
+              tipo: 'success', 
+              text:"Autor removido com sucesso"
+            }
+          })
         }
       })
-      .catch(err => PopUp.exibeMensagem("error", "Erro na comunicação com a API ao remover autor"));
+      .catch(err => 
+        this.setState({
+          mensagem: {
+            open: true, 
+            tipo: 'warning', 
+            text:"Erro na comunicação com a API ao remover autor"
+          }
+        })  
+      );
 
   };
 
-  escutadorDeSubmit = (autor) => {
+  escutadorDeSubmit = (dados) => {
+    const autor = {
+      nome: dados.nome,
+      livro: dados.livro,
+      preco: dados.preco,
+    }
+
     ApiService.CriaAutor(JSON.stringify(autor))
       .then(res => {
         if(res.message === 'success'){
-          PopUp.exibeMensagem("success", "Autor adicionado com sucesso!");
-          this.setState({autores: [...this.state.autores, res.data]});
+          this.setState({
+            autores: [...this.state.autores, res.data],
+            mensagem: {
+              open: true, 
+              tipo: 'success', 
+              text:"Autor adicionado com sucesso"
+            }
+          });
         }
       })
-      .catch(err => PopUp.exibeMensagem("error", "Erro na comunicação com a API ao adicionar o autor ")); 
+      .catch(err => 
+        this.setState({
+          mensagem: {
+            open: true, 
+            tipo: 'warning', 
+            text:"Erro na comunicação com a API ao criar o autor"
+          }
+        })); 
   };
   
   componentDidMount() {
@@ -56,17 +94,52 @@ export default class Home extends Component {
           this.setState({ autores: [...this.state.autores, ...res.data] })
         }
       })
-      .catch(err => PopUp.exibeMensagem("error", "Erro na comunicação com a API ao listar autores "))
-  }
+      .catch(err => 
+        this.setState({
+          mensagem: {
+            open: true, 
+            tipo: 'warning', 
+            text:"Erro na comunicação com a API ao listar autores"
+          }
+        })  
+      )     
+    }
 
   render() {
+    const campos = [
+      {
+        titulo: 'Autores',
+        dado: 'nome'
+      },
+      {
+        titulo: 'Livros',
+        dado: 'livro'
+      }, 
+      {
+        titulo: 'Preços',
+        dado: 'preco'
+      }, 
+    ];
+    const { open, tipo, text } = this.state.mensagem;
+
     return (
       <Fragment>
+      <Toast
+        severity={tipo}
+        open={open}
+        handleClose={() => {
+          this.setState({
+            mensagem: { open: false },
+          });
+        }}
+      >
+        {text}
+      </Toast>
         <Header />
-        <div className="container mb-10">
+        <div className="container">
           <h1>Casa do Código</h1>
-          <Tabela autores={this.state.autores} removeAutor={this.removeAutor} />
           <Form escutadorDeSubmit={this.escutadorDeSubmit} />
+          <Tabela campos={campos} dados={this.state.autores} removeDados={this.removeAutor} />
         </div>
       </Fragment>
     );
